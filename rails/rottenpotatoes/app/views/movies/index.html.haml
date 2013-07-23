@@ -2,7 +2,13 @@
 %h1 All Movies
 
 %table#movies
-  %thead
+  %thead 
+    = form_tag movies_path, :method => :get, id: 'ratings_form' do
+      Include: 
+      - @all_ratings.each do |rating,status|
+        = rating
+        = check_box_tag "ratings[#{rating}]",1, status
+      = submit_tag 'Refresh', id: 'ratings_submit'
     %tr
       %th{:class => @class_t}= link_to 'Movie Title', movies_path(order: 'title'), id: 'title_header'
       %th Rating

@@ -7,16 +7,29 @@ class MoviesController < ApplicationController
   end
 
   def index
-    case params[:order].to_sym
-    when :title
-      @movies = Movie.order 'title ASC'
-      @class_t = :hilite
-    when :release
-      @movies = Movie.order 'release_date ASC'
-      @class_r = :hilite
-    else
-      @movies = Movie.all
+    if params[:ratings]
+      @ratings = params[:ratings].keys
+      Movie.ratings.each_pair do |rating,value|
+        if @ratings.include? rating
+          Movie.ratings()[rating] = true
+        else
+          Movie.ratings()[rating] = false
+        end
+      end
     end
+    @ratings = Movie.ratings().select { |rating,status| if status ; rating ; end }.keys unless @ratings
+    case params[:order]
+      when 'title'
+        @movies = Movie.where(rating: @ratings).order 'title ASC'
+        @class_t = :hilite
+      when 'release'
+        @movies = Movie.where(rating: @ratings).order 'release_date ASC'
+        @class_r = :hilite
+      else
+        @movies = Movie.where(rating: @ratings)
+    end
+    @all_ratings = Movie.ratings
+    # Movie.reset_rating
   end
 
   def new
